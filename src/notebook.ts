@@ -34,7 +34,7 @@ What the walker said afterwards (transcribed speech, may contain errors):
 """${transcript}"""
 
 Write:
-- "note": a field-notebook entry, 60-120 words, first person, present tense, concrete and sensory. Use ONLY what the walker said; do not invent sights.
+- "note": a field-notebook entry, 60-120 words, first person, present tense, concrete and sensory. Rewrite it in your own words, the way a naturalist would log it, and connect it to the rules of the drift. Do not copy the walker's sentences. Do not invent sights the walker did not mention.
 - "enjoyed": one sentence on what kind of rule or moment this walker seemed to enjoy, to shape their next drift.
 
 Reply with JSON only: {"note": "...", "enjoyed": "..."}`),

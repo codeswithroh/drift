@@ -1,6 +1,6 @@
 import './style.css';
 import { createDrift, type Drift, type Mood } from './drift';
-import { activeBackend, loadLlm, type Progress } from './llm';
+import { activeBackend, loadLlm, modelStorageNote, type Progress } from './llm';
 import { writeEntry, type Entry } from './notebook';
 import { ScreenTimer } from './screentime';
 import { addEntry, entries, memory } from './store';
@@ -116,12 +116,12 @@ function ready(drift: Drift, rendered: RenderedDrift) {
         <li>Don't look again until the voice says so.</li>
       </ol>
       <button class="primary" id="start">Start walking</button>
+      ${modelStorageNote() ? `<p class="fine">${esc(modelStorageNote()!)}</p>` : ''}
     </main>`);
   $('#start').addEventListener('click', () => walk(drift, rendered));
 }
 
 function walk(drift: Drift, rendered: RenderedDrift) {
-  const audio = new Audio(rendered.url);
   const timer = new ScreenTimer();
   timer.start();
 
@@ -131,25 +131,37 @@ function walk(drift: Drift, rendered: RenderedDrift) {
 
   view(`
     <main class="pocket">
+      <audio id="player" src="${rendered.url}" preload="auto"></audio>
       <p class="big">Lock your phone now.</p>
       <p class="fine" id="where"></p>
       <button class="link" id="end">End drift early</button>
     </main>`);
 
+  const audio = $<HTMLAudioElement>('#player');
+
   // Only updates while someone is looking, which is exactly when it is needed.
   const tick = setInterval(() => {
-    const step = rendered.marks.filter((m) => m <= audio.currentTime).length;
-    $('#where').textContent = `Rule ${Math.max(0, step - 1)} of ${drift.steps.length - 2}. Put it away.`;
+    // marks include the intro (first) and outro (last) clips around the rules.
+    const rules = drift.steps.length - 2;
+    const rule = rendered.marks.filter((m) => m <= audio.currentTime).length - 1;
+    $('#where').textContent =
+      rule < 1 ? 'Starting. Put it away.' : rule > rules ? 'Almost done. Put it away.' : `Rule ${rule} of ${rules}. Put it away.`;
   }, 1000);
 
+  let finished = false;
   const finish = () => {
+    if (finished) return;
+    finished = true;
     clearInterval(tick);
     audio.pause();
     debrief(drift, timer.stop());
   };
   audio.addEventListener('ended', finish, { once: true });
   $('#end').addEventListener('click', finish);
-  audio.play().catch(failed);
+  audio.play().catch((err: DOMException) => {
+    // Ending early interrupts a pending play(): that is not an error.
+    if (!finished && err.name !== 'AbortError') failed(err);
+  });
 }
 
 // ---------- 4. Debrief ----------
@@ -227,7 +239,7 @@ async function notebook() {
     <main>
       <button class="link" id="back">← Back</button>
       <h1>Field notebook</h1>
-      <p class="meta">${all.length} drifts · ${walked} min outside · ${fmtDuration(screen)} of screen</p>
+      <p class="meta">${all.length} drift${all.length === 1 ? '' : 's'} · ${walked} min outside · ${fmtDuration(screen)} of screen</p>
       ${all.map(entryHtml).join('')}
     </main>`);
   $('#back').addEventListener('click', home);

@@ -1,5 +1,6 @@
 // Whisper, on the device (transformers.js). The debrief never leaves the phone.
 import { pipeline, type AutomaticSpeechRecognitionPipeline } from '@huggingface/transformers';
+import { hasWebGpu } from './gpu';
 import type { Progress } from './llm';
 
 const MODEL_ID = 'onnx-community/whisper-base';
@@ -8,10 +9,10 @@ let asr: AutomaticSpeechRecognitionPipeline | null = null;
 export async function loadStt(onProgress: Progress) {
   if (asr) return;
   asr = (await pipeline('automatic-speech-recognition', MODEL_ID, {
-    device: 'gpu' in navigator ? 'webgpu' : 'wasm',
+    device: (await hasWebGpu()) ? 'webgpu' : 'wasm',
     dtype: 'q8',
     progress_callback: (p: { status: string; progress?: number }) => {
-      if (p.status === 'progress' && p.progress != null) onProgress('Downloading listener (one time)…', p.progress / 100);
+      if (p.status === 'progress' && p.progress != null) onProgress('Getting the listener ready…', p.progress / 100);
     },
   })) as AutomaticSpeechRecognitionPipeline;
 }

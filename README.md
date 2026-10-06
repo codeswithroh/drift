@@ -38,6 +38,17 @@ ollama pull gemma3n:e2b
 
 Set `VITE_OLLAMA_MODEL` in `.env.local` to use a different local Gemma (for example `gemma3:4b`).
 
+## Tests
+
+End-to-end tests drive the real app with real models in headless Chromium (Playwright): Gemma via local Ollama, Kokoro and Whisper in the page, and a fake microphone that plays recorded speech.
+
+```bash
+ollama pull gemma3n:e2b   # or set VITE_OLLAMA_MODEL
+npm run test:e2e
+```
+
+They cover the full drift (prepare → walk with the screen locked → spoken debrief → notebook, persisted across reloads), fallback rules when the model returns junk, ending early and skipping the debrief, and a clear error when no Gemma backend exists.
+
 ## Code map
 
 - `src/llm.ts`: Gemma loading (MediaPipe + Cache API, with Ollama fallback)

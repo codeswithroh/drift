@@ -3,6 +3,7 @@
 // locked, while timers and background GPS in a PWA get suspended. One file = no wake-ups.
 import { KokoroTTS } from 'kokoro-js';
 import type { Drift } from './drift';
+import { hasWebGpu } from './gpu';
 import type { Progress } from './llm';
 
 const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
@@ -12,12 +13,12 @@ let tts: KokoroTTS | null = null;
 
 export async function loadTts(onProgress: Progress) {
   if (tts) return;
-  const webgpu = 'gpu' in navigator;
+  const webgpu = await hasWebGpu();
   tts = await KokoroTTS.from_pretrained(MODEL_ID, {
     dtype: webgpu ? 'fp32' : 'q8',
     device: webgpu ? 'webgpu' : 'wasm',
     progress_callback: (p: { status: string; progress?: number }) => {
-      if (p.status === 'progress' && p.progress != null) onProgress('Downloading voice (one time)…', p.progress / 100);
+      if (p.status === 'progress' && p.progress != null) onProgress('Getting the voice ready…', p.progress / 100);
     },
   });
 }
