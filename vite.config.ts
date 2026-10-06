@@ -18,7 +18,7 @@ export default defineConfig({
       },
       workbox: {
         // App shell only. Model weights are cached at runtime by llm.ts / transformers.js.
-        globPatterns: ['**/*.{js,css,html,svg,wasm}'],
+        globPatterns: ['**/*.{js,css,html,svg,wasm,webp,woff2}'],
         maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
         runtimeCaching: [
           {

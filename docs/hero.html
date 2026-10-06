@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- Source for docs/hero.png and docs/cover.png. Rendered by e2e/hero.spec.ts. -->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..600,100;1,9..144,400..600,100&family=Inter:wght@400..700&display=block" rel="stylesheet">
+<style>
+  :root { --bg: #f6f0e4; --ink: #26231e; --muted: #7a7164; --accent: #2f5d3a; --sage: #b9d3a8; --peach: #f5c3a0; --lav: #d6cbf2; --sun: #f4cd6a; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    width: var(--w); height: var(--h); overflow: hidden; color: var(--ink);
+    font-family: Inter, system-ui, sans-serif; display: flex; align-items: center; gap: var(--gap); padding: 0 var(--pad);
+    background:
+      radial-gradient(45% 60% at 0% 0%, #f7cfb2, transparent 70%),
+      radial-gradient(40% 55% at 100% 20%, #ddd2f3, transparent 70%),
+      radial-gradient(50% 60% at 40% 110%, #cfe2c0, transparent 70%),
+      var(--bg);
+  }
+  .copy { flex: 0 0 var(--copy); position: relative; }
+  .pip { width: var(--pipsize); height: var(--pipsize); background: url(../public/mascot/pip-directions.webp) 50% 50% / 300% 300% no-repeat;
+         margin-left: -8px; clip-path: inset(1.5% 1.5% 3% 1.5%); }
+  .eyebrow { font-weight: 600; font-size: var(--eye); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  h1 { font-family: Fraunces, serif; font-weight: 500; font-size: var(--title); letter-spacing: -0.03em; line-height: .95; margin: 10px 0 14px; font-variation-settings: 'SOFT' 100, 'opsz' 144; }
+  h1 em { color: var(--accent); }
+  p { font-size: var(--lede); line-height: 1.4; color: var(--muted); max-width: 30ch; }
+  .stack { margin-top: 22px; font-weight: 500; font-size: var(--eye); color: var(--ink); display: flex; gap: 8px; flex-wrap: wrap; }
+  .stack span { background: rgba(255,252,245,.7); border: 1px solid rgba(38,35,30,.08); border-radius: 999px; padding: 6px 12px; }
+  .phones { flex: 1; display: flex; gap: 22px; align-items: center; justify-content: center; position: relative; }
+  .phone { width: var(--pw); border-radius: 30px; padding: 7px; background: #1d1b17; box-shadow: 0 30px 60px -22px rgba(60,40,15,.55); }
+  .phone img { width: 100%; display: block; border-radius: 24px; }
+  .phone:nth-child(2) { transform: translateY(-24px) rotate(1.5deg); }
+  .phone:nth-child(1) { transform: rotate(-2deg); }
+  .phone:nth-child(3) { transform: translateY(16px) rotate(2deg); }
+  svg.d { position: absolute; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <svg class="d" viewBox="0 0 48 48" style="width:42px;left:calc(var(--pipsize) + 10px);top:6px"><path d="M24 5c1.5 10 5 13.5 15 15-10 1.5-13.5 5-15 15-1.5-10-5-13.5-15-15 10-1.5 13.5-5 15-15Z" fill="#f4cd6a"/></svg>
+    <svg class="d" viewBox="0 0 48 48" style="width:48px;left:calc(var(--pipsize) + 70px);top:40px"><path d="M9 39C8 21 21 9 39 9c1 17-11 30-30 30Z" fill="#b9d3a8"/><path d="M10 38 27 21"/></svg>
+    <svg class="d" viewBox="0 0 48 48" style="width:64px;left:calc(var(--pipsize) + 140px);top:0"><path d="M4 30c5-11 9 7 15-3s9-11 13-3 8 5 12-3"/></svg>
+    <div class="pip"></div>
+    <div class="eyebrow">Open-weight AI · on your phone</div>
+    <h1>Drift</h1>
+    <p>A walk with no destination. Gemma writes the rules, a voice reads them, <em>your phone stays in your pocket.</em></p>
+    <div class="stack"><span>Gemma 4</span><span>Kokoro</span><span>Whisper</span><span>WebGPU</span></div>
+  </div>
+  <div class="phones" id="phones"></div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const shots = (q.get('shots') || '3-ready-light,4-walking,5-stats-light').split(',');
+    document.getElementById('phones').innerHTML = shots.map(s => `<div class="phone"><img src="screens/${s}.png"></div>`).join('');
+  </script>
+</body>
+</html>
