@@ -256,7 +256,7 @@ function verdict(share: number): { mood: Reaction; line: string } {
   return { mood: 'surprised', line: 'Lots of screen. Try a shorter drift next time?' };
 }
 
-function debrief(drift: Drift, stats: ReturnType<ScreenTimer['stop']>) {
+function debrief(drift: Drift, stats: ReturnType<ScreenTimer['stop']>, notice = '') {
   const rec = new Recorder();
   const share = stats.walkMs ? stats.screenOnMs / stats.walkMs : 0;
   const v = verdict(share);
@@ -279,6 +279,7 @@ function debrief(drift: Drift, stats: ReturnType<ScreenTimer['stop']>) {
 
       <section class="card talk">
         <h2>What did you notice?</h2>
+        ${notice ? `<p class="notice" role="alert">${esc(notice)}</p>` : ''}
         <p class="fine">Talk for a minute. Whisper listens on this phone; nothing is uploaded.</p>
         <button class="cta" id="rec">${doodle('mic', 'peach-fill')}<span>Start talking</span></button>
         <p class="fine timer" id="timer" hidden></p>
@@ -314,6 +315,13 @@ function debrief(drift: Drift, stats: ReturnType<ScreenTimer['stop']>) {
       step(1);
       progress('Listening back…');
       const transcript = await transcribe(blob);
+      if (!transcript) {
+        return debrief(
+          drift,
+          stats,
+          'Pip couldn’t hear anything. Check that the microphone is allowed, hold the phone near your mouth, and try again.',
+        );
+      }
       step(2);
       progress('Writing your field notebook…');
       const entry = await writeEntry(drift, transcript, stats);

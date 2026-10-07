@@ -17,13 +17,28 @@ export async function loadStt(onProgress: Progress) {
   })) as AutomaticSpeechRecognitionPipeline;
 }
 
+// What Whisper says when it hears silence or noise: it was trained on subtitles.
+const HALLUCINATIONS = /^[\s.!?,]*(thank you|thanks|thanks for watching|thank you for watching|you|bye|okay|so|um+|uh+)?[\s.!?,]*$/i;
+
+/** True when a recording is too short or too quiet to contain speech. */
+export function isSilent(pcm: Float32Array, rate = 16000): boolean {
+  if (pcm.length < rate * 1.5) return true;
+  let sum = 0;
+  for (let i = 0; i < pcm.length; i++) sum += pcm[i] * pcm[i];
+  return Math.sqrt(sum / pcm.length) < 0.004;
+}
+
+/** Returns '' when nothing was said, instead of Whisper's "Thank you." */
 export async function transcribe(audio: Blob): Promise<string> {
   if (!asr) throw new Error('STT not loaded');
   const ctx = new AudioContext({ sampleRate: 16000 });
   const decoded = await ctx.decodeAudioData(await audio.arrayBuffer());
   await ctx.close();
-  const out = await asr(decoded.getChannelData(0), { chunk_length_s: 30, stride_length_s: 5 });
-  return (Array.isArray(out) ? out.map((o) => o.text).join(' ') : out.text).trim();
+  const pcm = decoded.getChannelData(0);
+  if (isSilent(pcm)) return '';
+  const out = await asr(pcm, { chunk_length_s: 30, stride_length_s: 5 });
+  const text = (Array.isArray(out) ? out.map((o) => o.text).join(' ') : out.text).trim();
+  return HALLUCINATIONS.test(text) ? '' : text;
 }
 
 export class Recorder {

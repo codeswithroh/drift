@@ -252,6 +252,7 @@ body.night::before { display: none; }
 .cta.recording { background: #b4472e; color: #fff; animation: rec 1.6s ease-in-out infinite; }
 @keyframes rec { 50% { box-shadow: 0 0 0 10px rgba(180, 71, 46, 0.18); } }
 .timer { font-variant-numeric: tabular-nums; }
+.notice { font-size: 0.88rem; line-height: 1.45; padding: 0.7rem 0.9rem; border-radius: 14px; background: color-mix(in srgb, var(--peach) 55%, transparent); color: var(--ink); }
 
 /* ---------- Notebook ---------- */
 .entry {
